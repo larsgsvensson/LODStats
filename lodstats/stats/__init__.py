@@ -39,6 +39,7 @@ from TypedSubjects import TypedSubjects
 from LabeledSubjects import LabeledSubjects
 from SameAs import SameAs
 from Links import Links
+from LinkSets import LinkSets
 # max per property
 # avg per property
 from Vocabularies import Vocabularies, VocabulariesPerNode
