@@ -77,7 +77,7 @@ stupid_stats = [LiteralsList, CookieCounter]
 # stats for owl, rdf-schema, -syntax
 vocab_stats = [RDFSyntax, RDFSchema, Owl]
 # stats necessary for VoiD
-void_stats = [Vocabularies, Entities, ClassesDefined, UsedClasses, PropertiesDefined, PropertyUsage, DistinctSubjects, DistinctObjects]
+void_stats = [Vocabularies, Entities, ClassesDefined, UsedClasses, PropertiesDefined, PropertyUsage, DistinctSubjects, DistinctObjects, LinkSets]
 # links only
 link_stats = [Links]
 
