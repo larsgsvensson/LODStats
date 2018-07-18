@@ -2,41 +2,31 @@ from RDFStatInterface import RDFStatInterface
 from lodstats.util.namespace import get_namespace
 import lodstats.util.rdf_namespaces
 import RDF
+import logging
+
+logger = logging.getLogger("lodstats")
 
 class LinkSets(RDFStatInterface):
-	#FIXME: Those maps should be refactored into their own package
-	
-	# Maps from a prefix to a dataset name (used to build the LinkSet name) and a dataset identifier, which is a URI
-	# The dataset identifier will be used to identify the void:subjectsTarget and the void:objectsTarget of each void:LinkSet
-	# This could possibly be generated from other void files...
-	targets = {
-		"http://d-nb.info/gnd/" : ["GND" , "#GND"],
-		"http://lod.gesis.org/thesoz/concept/" : ["TheSoz","http://lod.gesis.org/thesoz/void#thesoz"],
-		"http://id.loc.gov/authorities/subjects/" : ["LCSH","#LCSH"] ,
-		"http://zbw.eu/stw/descriptor/" : ["STW", "http://zbw.eu/stw"] ,
-		"http://d-nb.info/ddc/class/" : ["DDC", "#DDC"] ,
-		"http://dbpedia.org/resource/" : ["dbpedia", "http://dbpedia.org/void/Dataset" ],
-		"http://viaf.org/viaf/" : ["viaf", "http://viaf.org/viaf/data" ]
-	}
-	
-	# Only properties listed as keys are evaluated for the linksets. The values are used to build the LinkSet name
-	link_properties = {
-		"http://www.w3.org/2004/02/skos/core#broadMatch" : "skos-broadMatch" ,
-		"http://www.w3.org/2004/02/skos/core#narrowMatch" : "skos-narrowMatch" ,
-		"http://www.w3.org/2004/02/skos/core#closeMatch" : "skos-closeMatch" ,
-		"http://www.w3.org/2004/02/skos/core#exactMatch" : "skos-exactMatch" ,
-		"http://www.w3.org/2004/02/skos/core#relatedMatch" : "skos-relatedMatch" ,
-		"http://d-nb.info/standards/elementset/gnd#relatedDdcWithDegreeOfDeterminacy1" : "gnd-ddc1" ,
-		"http://d-nb.info/standards/elementset/gnd#relatedDdcWithDegreeOfDeterminacy2" : "gnd-ddc2" ,
-		"http://d-nb.info/standards/elementset/gnd#relatedDdcWithDegreeOfDeterminacy3" : "gnd-ddc3" ,
-		"http://d-nb.info/standards/elementset/gnd#relatedDdcWithDegreeOfDeterminacy4" : "gnd-ddc4" ,
-		"http://www.w3.org/2002/07/owl#sameAs" : "owl-sameAs" ,
-	}
+	global targets, link_properties
+	targets={}
+	link_properties={}
 	
 	def __init__(self, results):
 		super(LinkSets, self).__init__(results)
 		self.usage_count = self.results['usage_count'] = {}
-        
+		with open('../config/targets.txt') as f:
+			for line in f:
+				if( not line.startswith('#') ): # comment lines
+					global targets
+					(uriPrefix,datasetName,datasetId) = line.split(',')
+					targets[uriPrefix.strip()] = [datasetName.strip(),datasetId.strip()]
+		with open('../config/link_properties.txt') as f:
+			for line in f:
+				if( not line.startswith('#') ): # comment lines
+					global link_properties
+					(propertyUri,shortName) = line.split(',')
+					link_properties[propertyUri.strip()] = shortName.strip()
+
 	def count(self, s, p, o, s_blank, o_l, o_blank, statement):
 		if not (statement.subject.is_resource and statement.object.is_resource):
 			return
@@ -46,16 +36,17 @@ class LinkSets(RDFStatInterface):
         
 		if object_ns is None or subject_ns is None:
 			return
-        
-		if subject_ns != object_ns and p in LinkSets.link_properties.keys():
+		global link_properties
+		if subject_ns != object_ns and p in link_properties.keys():
 			key = LinkSets.LinkSetKey( subject_ns, p, object_ns )
 			self.usage_count[key] = self.usage_count.get(key, 0) + 1
-    
+
 	def voidify(self, void_model, dataset):
 		namespaces = lodstats.util.rdf_namespaces.RDFNamespaces()
+		global targets
 
 		for link_set_key, link_count in self.usage_count.iteritems():
-			link_set_subject_pair = LinkSets.targets.get(link_set_key.subject_ns)
+			link_set_subject_pair = targets.get(link_set_key.subject_ns)
 			if link_set_subject_pair is None:
 				link_set_subject_target=link_set_key.subject_ns
 				subjects_target_uri = "http://example.com#" + link_set_subject_target
@@ -63,7 +54,7 @@ class LinkSets(RDFStatInterface):
 				link_set_subject_target = link_set_subject_pair[0]
 				subjects_target_uri = link_set_subject_pair[1]
 			
-			link_set_object_pair = LinkSets.targets.get(link_set_key.object_ns)
+			link_set_object_pair = targets.get(link_set_key.object_ns)
 			if link_set_object_pair is None:
 				link_set_object_target=link_set_key.object_ns
 				objects_target_uri = "http://example.com#" + link_set_object_target
@@ -72,12 +63,12 @@ class LinkSets(RDFStatInterface):
 				objects_target_uri =  link_set_object_pair[1]
 				
 			link_set_predicate = link_set_key.predicate
-			
-			link_set_predicate_alias = LinkSets.link_properties.get(link_set_predicate)
+			global link_properties
+			link_set_predicate_alias = link_properties.get(link_set_predicate)
 			# the following really should never happen, since we only evaluate predicates in link_properties.keys()
 			if link_set_predicate_alias is None:
 				link_set_predicate_alias = link_set_predicate
-				print "no alias found for " + link_set_predicate
+				logger.error("no alias found for " + link_set_predicate)
 			
 			link_set_uri = "#" + link_set_subject_target + "_" + link_set_predicate_alias + "_" + link_set_object_target
 							
@@ -114,3 +105,6 @@ class LinkSets(RDFStatInterface):
 
 		def __hash__(self):
 			return hash(self.__attrs())
+		
+		def __str__(self):
+			return 'subjectNamespace="'+self.subject_ns+'", predicate="' + self.predicate + '", objectNamespace="' + self.object_ns + '"'
