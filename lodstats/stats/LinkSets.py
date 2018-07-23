@@ -73,18 +73,20 @@ class LinkSets(RDFStatInterface):
 			link_set_uri = "#" + link_set_subject_target + "_" + link_set_predicate_alias + "_" + link_set_object_target
 							
 			int_datatype_uri = namespaces.get_rdf_namespace("xsd").integer.uri
-			link_set_node = RDF.Node(uri_string=link_set_uri)
+			link_set_node = RDF.Node()
 			statement_link_set_definition = RDF.Statement(link_set_node, namespaces.get_rdf_namespace("rdf").type, namespaces.get_rdf_namespace("void").Linkset)
 			statement_linked_triples_value = RDF.Statement(link_set_node, namespaces.get_rdf_namespace("void").triples, RDF.Node(literal=str(link_count), datatype=int_datatype_uri))
 			statement_link_predicate = RDF.Statement(link_set_node, namespaces.get_rdf_namespace("void").linkPredicate, RDF.Node(uri_string=link_set_predicate))
 			statement_subjects_target = RDF.Statement(link_set_node, namespaces.get_rdf_namespace("void").subjectsTarget, RDF.Node(uri_string=subjects_target_uri))
 			statement_objects_target = RDF.Statement(link_set_node, namespaces.get_rdf_namespace("void").objectsTarget, RDF.Node(uri_string=objects_target_uri))
+			statement_subset = RDF.Statement(dataset, namespaces.get_rdf_namespace("void").subset, link_set_node );
 
 			void_model.append(statement_link_set_definition)
 			void_model.append(statement_linked_triples_value)
 			void_model.append(statement_link_predicate)
 			void_model.append(statement_subjects_target)
 			void_model.append(statement_objects_target)
+			void_model.append(statement_subset)
         
         
                     
