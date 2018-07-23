@@ -3,9 +3,9 @@
 # This could possibly be generated from other void files...
 http://d-nb.info/gnd/, GND, http://d-nb.info/dataset/authorities
 http://lod.gesis.org/thesoz/concept/, TheSoz, http://lod.gesis.org/thesoz/void#thesoz
-http://id.loc.gov/authorities/subjects/, LCSH, #LCSH
-http://zbw.eu/stw/descriptor/",STW, http://zbw.eu/stw
-http://dewey.info/class/, DDC, #DDC
+http://id.loc.gov/authorities/subjects/, LCSH, http://id.loc.gov/authorities/subjects/
+http://zbw.eu/stw/descriptor/,STW, http://zbw.eu/stw
+http://dewey.info/class/, DDC, http://dewey.info/class/
 http://dbpedia.org/resource/, dbpedia, http://dbpedia.org/void/Dataset
 http://viaf.org/viaf/, viaf, http://viaf.org/viaf/data
 http://sws.geonames.org/, geonames, http://sws.geonames.org/
