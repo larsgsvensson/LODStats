@@ -33,7 +33,7 @@ mkvirtualenv --system-site-packages lodstats
 cdvirtualenv
 mkdir src
 cd src/
-git clone git://github.com/larsgsvensson/LODStats.git
+git clone git://github.com/AKSW/LODStats.git
 
 cd LODStats/
 python setup.py install
