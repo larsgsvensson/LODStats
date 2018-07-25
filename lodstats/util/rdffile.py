@@ -3,6 +3,7 @@ import lodstats.stats
 import RDF
 import warnings
 import logging
+import os
 
 logger = logging.getLogger("lodstats")
 
@@ -34,6 +35,10 @@ class RdfFile(CallbackInterface, UriParserInterface):
         if(self.rdf_parser is not None):
             self.rdf_stream = self.rdf_parser.parse_as_stream(self.uri)
         self.do_stats(callback_function)
+        file_path = self.get_uri()[7:]
+        if( file_path.startswith('/tmp')):
+            os.remove(file_path)
+            logger.debug("removed file %s" % file_path)
 
     def get_no_of_statements(self):
         return self.no_of_statements
