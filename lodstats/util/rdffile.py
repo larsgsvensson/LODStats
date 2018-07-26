@@ -30,6 +30,7 @@ class RdfFile(CallbackInterface, UriParserInterface):
             logger.debug("Converting turtle to ntriples")
             rdf2rdf = RDF2RDF(self.get_uri())
             self.set_uri(rdf2rdf.convert_ttl_to_nt())
+            self.set_rdf_format(rdf_format='nt')
             logger.debug("Converted turtle to ntriples %s" % self.get_uri())
         self.rdf_parser = self.identify_rdf_parser()
         if(self.rdf_parser is not None):
